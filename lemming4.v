@@ -14,7 +14,7 @@ module top_module(
     reg [7:0] count;
     always @(*) begin
         if(next_state[1]==0)begin
-            if(count=<0)begin
+            if(count<20)begin
                 next_state[2]<=state[1]?0:(dig?1:state[2]);
                 if(next_state[2]==0)begin
                     case(state)
@@ -24,7 +24,7 @@ module top_module(
                 end
                 else  next_state[0] <= state[0];
             end
-            else next_state <= 4'b1000
+            else next_state <= 4'b1000;
         end
         else begin
             count<=ground?0:count++;
