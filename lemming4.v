@@ -10,19 +10,24 @@ module top_module(
     output aaah,
     output digging );
     parameter L=0, R=1;
-    reg [2:0]state, next_state;
+    reg [3:0]state, next_state;//{death,dig,fall,direction}
+    reg [7:0] count;
     always @(*) begin
         if(next_state[1]==0)begin
-            next_state[2]<=state[1]?0:(dig?1:state[2]);
-            if(next_state[2]==0)begin
-                case(state)
-                    L:next_state[0] <= (bump_left?R:L);
-                    R:next_state[0] <= (bump_right?L:R);           
-                endcase// State transition logic
+            if(count=<0)begin
+                next_state[2]<=state[1]?0:(dig?1:state[2]);
+                if(next_state[2]==0)begin
+                    case(state)
+                        L:next_state[0] <= (bump_left?R:L);
+                        R:next_state[0] <= (bump_right?L:R);           
+                    endcase// State transition logic
+                end
+                else  next_state[0] <= state[0];
             end
-            else  next_state[0] <= state[0];
+            else next_state <= 4'b1000
         end
         else begin
+            count<=ground?0:count++;
             next_state[0] <= state[0];
             next_state[2] <= 0 ;  
         end
