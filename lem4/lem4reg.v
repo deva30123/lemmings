@@ -16,15 +16,15 @@ module top_module(
             case(state)
                 L:next_state = ground?(dig?DL:(bump_left?R:L)):LF;
                 R:next_state = ground?(dig?DR:(bump_right?L:R)):RF;
-                LF:next_state = (ground?((count>19)?X:L):LF);
-                RF:next_state = (ground?((count>19)?X:R):RF);
+                LF:next_state = (ground?((count>20)?X:L):LF);
+                RF:next_state = (ground?((count>20)?X:R):RF);
                 DL:next_state = ground?DL:LF;
                 DR:next_state = ground?DR:RF;
                 X:next_state = X;
             endcase// State transition logic 
     end
     always @(posedge clk, posedge areset) begin
-        count = areset?0:(ground?0:count++);
+        count = areset?0:(ground?0:count+1);
         state = areset?L:next_state;// State flip-flops with asynchronous reset
     end
     // Output logic
