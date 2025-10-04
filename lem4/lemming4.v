@@ -26,8 +26,7 @@ module top_module(
             end
             else next_state <= 4'b1000;
         end
-        else begin
-            count<=ground?0:count++;
+        else begin            
             next_state[0] <= state[0];
             next_state[2] <= 0 ;  
         end
@@ -35,12 +34,13 @@ module top_module(
     end
 
     always @(posedge clk, posedge areset) begin
+        count = areset?0:(ground?0:count++);
         state = areset?L:next_state;// State flip-flops with asynchronous reset
     end
 
     // Output logic
     assign walk_left = (state==L);
     assign walk_right = (state==R);
-    assign aaah = (state[1]==1'b1);
-    assign digging = state[2];
+    assign aaah = (state[1]==1'b1)&(~state[3]);
+    assign digging = state[2]&(~state[3]);
 endmodule
