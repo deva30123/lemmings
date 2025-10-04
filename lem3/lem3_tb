@@ -1,0 +1,101 @@
+`timescale 1ns/1ps
+
+module tb_top_module();
+
+    // Inputs
+    reg clk;
+    reg areset;
+    reg bump_left;
+    reg bump_right;
+    reg ground;
+    reg dig;
+
+    // Outputs
+    wire walk_left;
+    wire walk_right;
+    wire aaah;
+    wire digging;
+
+    // Instantiate DUT
+    top_module dut (
+        .clk(clk),
+        .areset(areset),
+        .bump_left(bump_left),
+        .bump_right(bump_right),
+        .ground(ground),
+        .dig(dig),
+        .walk_left(walk_left),
+        .walk_right(walk_right),
+        .aaah(aaah),
+        .digging(digging)
+    );
+
+    // Clock generation
+    always #5 clk = ~clk;
+
+    initial begin
+        // Initialize
+        clk = 0;
+        areset = 0;
+        bump_left = 0;
+        bump_right = 0;
+        ground = 1;
+        dig = 0;
+
+        // Enable waveform dump
+        $dumpfile("lemming_dig_tb.vcd");
+        $dumpvars(0, tb_top_module);
+
+        // Apply async reset
+        #2 areset = 1;
+        #5 areset = 0;
+
+        // Should start walking left
+        #10;
+
+        // Case 1: bump ignored while walking left
+        bump_left = 1; #10; bump_left = 0;
+        #10;
+
+        // Case 2: issue dig command while walking left -> should start digging
+        dig = 1; #10; dig = 0;
+        #20;
+
+        // Case 3: ground disappears while digging -> should fall
+        ground = 0; #10;
+        #20;
+
+        // Case 4: ground reappears -> resume walking left
+        ground = 1; #10;
+
+        // Case 5: bump right now -> should switch to walking right
+        bump_right = 1; #10; bump_right = 0;
+        #20;
+
+        // Case 6: issue dig command while walking right -> should dig right
+        dig = 1; #10; dig = 0;
+        #20;
+
+        // Case 7: while digging right, ground disappears -> fall
+        ground = 0; #10;
+        #20;
+
+        // Case 8: ground returns -> walking right
+        ground = 1; #10;
+
+        // Case 9: apply reset again -> should go back to walk left
+        areset = 1; #5; areset = 0;
+        #10;
+
+        // End sim
+        #20;
+        $finish;
+    end
+
+    // Monitor signals
+    initial begin
+        $monitor("T=%0t | areset=%b bumpL=%b bumpR=%b ground=%b dig=%b | walk_left=%b walk_right=%b aaah=%b digging=%b | state=%b",
+                 $time, areset, bump_left, bump_right, ground, dig, walk_left, walk_right, aaah, digging, dut.state);
+    end
+
+endmodule
