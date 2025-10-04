@@ -33,8 +33,8 @@ module top_module(
         next_state[1]<=~ground;
     end
 
-    always @(posedge clk, posedge areset) begin
-        count = areset?0:(ground?0:count++);
+    always @(posedge clk or posedge areset) begin
+        count = areset?0:(ground?0:count+1);
         state = areset?L:next_state;// State flip-flops with asynchronous reset
     end
 
