@@ -13,7 +13,7 @@ module top_module(
     int count;
     reg [3:0]state, next_state;
     always @(*) begin
-      next_state[3]=ground?((count<20)?state[3]:1):0;     
+      next_state[3]=ground?((count>20)?1:state[3]):0;     
          if(next_state[1]==0)begin
             next_state[2]<=state[1]?0:(dig?1:state[2]);
             if(next_state[2]==0)begin
